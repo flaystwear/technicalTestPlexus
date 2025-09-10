@@ -4,12 +4,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import com.plexus.domain.model.Asset;
+import com.plexus.domain.model.out.AssetConsultingResponse;
 
 public interface AssetRepositoryPort {
-    Asset save(Asset asset);
-    Optional<Asset> findById(String id);
-    List<Asset> findByFilters(String filenameRegex, String filetype, OffsetDateTime uploadDateStart, OffsetDateTime uploadDateEnd, String sortDirection);
+    AssetConsultingResponse save(AssetConsultingResponse asset);
+    Optional<AssetConsultingResponse> findById(String id);
+    List<AssetConsultingResponse> findByFilters(String filenameRegex, String filetype, OffsetDateTime uploadDateStart, OffsetDateTime uploadDateEnd, String sortDirection);
 }
 
 

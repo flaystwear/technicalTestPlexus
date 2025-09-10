@@ -1,4 +1,4 @@
-package com.plexus.domain.model;
+package com.plexus.domain.model.out;
 
 import java.time.OffsetDateTime;
 
@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Asset {
+public class AssetConsultingResponse {
     private String id;
     private String filename;
     private String contentType;
     private String url;
     private Long size;
-    private OffsetDateTime uploadDate;
+    private String uploadDate;
 
 }
 

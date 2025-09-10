@@ -1,7 +1,7 @@
 package com.plexus.infraestructure.persistance.repository;
 
 import com.plexus.application.ports.out.AssetRepositoryPort;
-import com.plexus.domain.model.Asset;
+import com.plexus.domain.model.out.AssetConsultingResponse;
 import com.plexus.infraestructure.persistance.entity.AssetEntity;
 
 import org.springframework.stereotype.Component;
@@ -21,19 +21,19 @@ public class AssetRepositoryAdapter implements AssetRepositoryPort {
     }
 
     @Override
-    public Asset save(Asset asset) {
+    public AssetConsultingResponse save(AssetConsultingResponse asset) {
         AssetEntity entity = toEntity(asset);
         AssetEntity saved = jpaRepository.save(entity);
         return toDomain(saved);
     }
 
     @Override
-    public Optional<Asset> findById(String id) {
+    public Optional<AssetConsultingResponse> findById(String id) {
         return jpaRepository.findById(id).map(this::toDomain);
     }
 
     @Override
-    public List<Asset> findByFilters(String filenameRegex, String filetype, OffsetDateTime uploadDateStart, OffsetDateTime uploadDateEnd, String sortDirection) {
+    public List<AssetConsultingResponse> findByFilters(String filenameRegex, String filetype, OffsetDateTime uploadDateStart, OffsetDateTime uploadDateEnd, String sortDirection) {
         // Por simplicidad, usamos findAll y filtramos en memoria. En producción, construir Specification.
         return jpaRepository.findAll().stream()
                 .filter(e -> filenameRegex == null || e.getFilename().matches(filenameRegex))
@@ -44,25 +44,25 @@ public class AssetRepositoryAdapter implements AssetRepositoryPort {
                 .collect(Collectors.toList());
     }
 
-    private AssetEntity toEntity(Asset asset) {
+    private AssetEntity toEntity(AssetConsultingResponse asset) {
         AssetEntity e = new AssetEntity();
         e.setId(asset.getId());
         e.setFilename(asset.getFilename());
         e.setContentType(asset.getContentType());
         e.setUrl(asset.getUrl());
         e.setSize(asset.getSize());
-        e.setUploadDate(asset.getUploadDate());
+        e.setUploadDate(asset.getUploadDate() != null ? OffsetDateTime.parse(asset.getUploadDate()) : null);
         return e;
     }
 
-    private Asset toDomain(AssetEntity e) {
-        Asset a = new Asset();
+    private AssetConsultingResponse toDomain(AssetEntity e) {
+        AssetConsultingResponse a = new AssetConsultingResponse();
         a.setId(e.getId());
         a.setFilename(e.getFilename());
         a.setContentType(e.getContentType());
         a.setUrl(e.getUrl());
         a.setSize(e.getSize());
-        a.setUploadDate(e.getUploadDate());
+        a.setUploadDate(e.getUploadDate().toString());
         return a;
     }
 }
