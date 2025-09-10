@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: technicalTestPlexus-test
+server:
+  port: 0
+
+
