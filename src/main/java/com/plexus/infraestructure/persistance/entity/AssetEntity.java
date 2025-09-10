@@ -1,25 +1,31 @@
-package com.plexus.domain.asset.model;
+package com.plexus.infraestructure.persistance.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 
-public class Asset {
+@Entity 
+@Table(name = "assets")
+public class AssetEntity {
+    @Id
     private String id;
+
+    @Column(nullable = false)
     private String filename;
+
+    @Column(nullable = false)
     private String contentType;
+
+    @Column
     private String url;
+
+    @Column
     private Long size;
+
+    @Column
     private OffsetDateTime uploadDate;
-
-    public Asset(String id, String filename, String contentType, String url, Long size, OffsetDateTime uploadDate) {
-        this.id = id;
-        this.filename = filename;
-        this.contentType = contentType;
-        this.url = url;
-        this.size = size;
-        this.uploadDate = uploadDate;
-    }
-
-    public Asset() {}
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }

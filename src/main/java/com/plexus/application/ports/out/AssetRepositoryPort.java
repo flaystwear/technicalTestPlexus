@@ -1,10 +1,10 @@
-package com.plexus.domain.asset.port;
-
-import com.plexus.domain.asset.model.Asset;
+package com.plexus.application.ports.out;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import com.plexus.domain.model.Asset;
 
 public interface AssetRepositoryPort {
     Asset save(Asset asset);

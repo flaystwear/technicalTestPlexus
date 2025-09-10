@@ -1,7 +1,9 @@
-package com.plexus.application.asset;
+package com.plexus.infraestructure.web.controller;
 
+import com.plexus.application.asset.AssetService;
 import com.plexus.application.asset.dto.AssetDtos;
-import com.plexus.domain.asset.model.Asset;
+import com.plexus.domain.model.Asset;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +35,7 @@ public class AssetController {
 
     @GetMapping("/")
     public ResponseEntity<List<AssetDtos.AssetResponse>> search(
-            @RequestParam(required = false) String uploadDateStart,
+            @RequestParam(required = false) String uploadDateStart, 
             @RequestParam(required = false) String uploadDateEnd,
             @RequestParam(required = false) String filename,
             @RequestParam(required = false) String filetype,

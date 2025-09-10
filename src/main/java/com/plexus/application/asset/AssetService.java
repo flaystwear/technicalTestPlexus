@@ -1,7 +1,7 @@
 package com.plexus.application.asset;
 
-import com.plexus.domain.asset.model.Asset;
-import com.plexus.domain.asset.port.AssetRepositoryPort;
+import com.plexus.application.ports.out.AssetRepositoryPort;
+import com.plexus.domain.model.Asset;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;

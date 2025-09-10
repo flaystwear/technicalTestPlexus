@@ -1,9 +1,8 @@
-package com.plexus.infraestructure.asset.adapter;
+package com.plexus.infraestructure.persistance.repository;
 
-import com.plexus.domain.asset.model.Asset;
-import com.plexus.domain.asset.port.AssetRepositoryPort;
-import com.plexus.infraestructure.asset.jpa.AssetEntity;
-import com.plexus.infraestructure.asset.jpa.AssetJpaRepository;
+import com.plexus.application.ports.out.AssetRepositoryPort;
+import com.plexus.domain.model.Asset;
+import com.plexus.infraestructure.persistance.entity.AssetEntity;
 
 import org.springframework.stereotype.Component;
 
