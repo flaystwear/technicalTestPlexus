@@ -13,6 +13,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,10 +52,13 @@ public class AssetController {
                     @ApiResponse(responseCode = "500", description = "An unexpected error occurred.")
             }
     )
-    public ResponseEntity<AssetFileUploadResponse> upload(@RequestBody AssetFileUploadRequest request) {
+    public Mono<ResponseEntity<AssetFileUploadResponse>> upload(@RequestBody AssetFileUploadRequest request) {
+        //Decodificamos el archivo para guardar
         byte[] bytes = request.getEncodedFile() != null ? java.util.Base64.getDecoder().decode(request.getEncodedFile()) : new byte[0];
-        AssetFileUploadResponse asset = assetUploadService.upload(request.getFilename(), request.getContentType(), bytes);
-        return new ResponseEntity<>(new AssetFileUploadResponse(asset.getId()), HttpStatus.ACCEPTED);
+        //Llamada WebFlux por hilos
+        return Mono.fromCallable(() -> assetUploadService.upload(request.getFilename(), request.getContentType(), bytes))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(a -> new ResponseEntity<>(new AssetFileUploadResponse(a.getId()), HttpStatus.ACCEPTED));
     }
 
     @GetMapping("/")
@@ -68,7 +74,7 @@ public class AssetController {
                     @ApiResponse(responseCode = "500", description = "An unexpected error occurred.")
             }
     )
-    public ResponseEntity<HashSet<AssetSearchResponse>> search(
+    public Mono<ResponseEntity<HashSet<AssetSearchResponse>>> search(
             @Parameter(description = "The start date for the range.") @RequestParam(required = false) String uploadDateStart, 
             @Parameter(description = "The end date for the range.") @RequestParam(required = false) String uploadDateEnd,
             @Parameter(description = "The filename expression for file filtering (regex).") @RequestParam(required = false) String filename,
@@ -76,10 +82,10 @@ public class AssetController {
             @Parameter(description = "Sort direction") @RequestParam(required = false) String sortDirection
     ) {
         //Serching assets by filters
-        List<AssetSearchResponse> assets = assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
-        //Returning assets as a set to avoid duplicates
-        HashSet<AssetSearchResponse> response = new HashSet<>(assets);
-        return ResponseEntity.ok(response);
+        return Mono.fromCallable(() -> assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, sortDirection))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(list -> new HashSet<>(list))
+                .map(ResponseEntity::ok);
     }
 
 }

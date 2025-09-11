@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.plexus.application.ports.out.AssetUploadPort;
+import com.plexus.application.ports.out.FileStorageUploader;
 import com.plexus.domain.model.dto.Asset;
 import com.plexus.infraestructure.persistance.entity.AssetEntity;
 import com.plexus.infraestructure.persistance.mapping.AssetEntityMapper;
 import com.plexus.infraestructure.persistance.repository.AssetRepository;
+import com.plexus.infraestructure.storage.FakeAwsStorageClient;
 
 import java.time.OffsetDateTime;
 
@@ -18,6 +20,8 @@ public class AssetUploadFileImpl implements AssetUploadPort{
 
     @Autowired
     private AssetEntityMapper assetEntityMapper;
+    @Autowired
+    private FileStorageUploader storageClient;
     
     public  Asset upload(String filename, String contentType, byte[] encodedFile){
         long size = encodedFile != null ? encodedFile.length : 0L;
@@ -28,7 +32,14 @@ public class AssetUploadFileImpl implements AssetUploadPort{
         .url(null)
         .uploadDate(OffsetDateTime.now())
         .build();
-        assetRepository.save(newAsset);
-        return assetEntityMapper.mapAssetEntityToAsset(newAsset);
+        AssetEntity saved = assetRepository.save(newAsset);
+        // Lanzamos la subida asíncrona y, cuando termine, actualizamos la URL en BD
+        storageClient.uploadAsync(saved.getId(), encodedFile)
+                .thenAccept(url -> {
+                    saved.setUrl(url);
+                    assetRepository.save(saved);
+                });
+        // Respondemos inmediatamente con los datos actuales; la URL se rellenará más tarde
+        return assetEntityMapper.mapAssetEntityToAsset(saved);
     }
 }
