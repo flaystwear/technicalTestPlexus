@@ -1,13 +1,12 @@
-package com.plexus.domain.asset.port;
-
-import com.plexus.domain.asset.model.Asset;
+package com.plexus.application.ports.out;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface AssetRepositoryPort {
-    Asset save(Asset asset);
+import com.plexus.domain.model.dto.Asset;
+
+public interface AssetSearchPort {
     Optional<Asset> findById(String id);
     List<Asset> findByFilters(String filenameRegex, String filetype, OffsetDateTime uploadDateStart, OffsetDateTime uploadDateEnd, String sortDirection);
 }

@@ -1,12 +1,14 @@
-package com.plexus.application;
+package com.plexus;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication(scanBasePackages = "com.plexus")
-public class Application {
+@EnableAsync
+public class PlexusApplication {
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(PlexusApplication.class, args);
     }
 }
 
