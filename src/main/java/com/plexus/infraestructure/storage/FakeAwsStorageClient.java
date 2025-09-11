@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class FakeAwsStorageClient implements FileStorageUploader {
 
-    @Async("asyncExecutor")
+    @Async("virtualThreadExecutor")
     public CompletableFuture<String> uploadAsync(String assetId, byte[] content) {
         try {
             // Simulate network latency/upload

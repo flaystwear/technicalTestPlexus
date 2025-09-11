@@ -22,6 +22,18 @@ spring:
   h2:
     console:
       enabled: true
+  # Configuración de Virtual Threads (Java 21)
+  threads:
+    virtual:
+      enabled: true
+  task:
+    execution:
+      pool:
+        core-size: 200
+        max-size: 200
+        queue-capacity: 0
+        thread-name-prefix: "virtual-thread-"
+
 logging:
   level:
     root: INFO
