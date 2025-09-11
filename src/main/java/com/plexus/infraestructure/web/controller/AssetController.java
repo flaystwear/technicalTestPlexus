@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.plexus.application.asset.AssetService;
+import com.plexus.application.ports.in.AssetSearchService;
+import com.plexus.application.ports.in.AssetUploadService;
 import com.plexus.domain.model.in.AssetFileUploadRequest;
-import com.plexus.domain.model.out.AssetConsultingResponse;
+import com.plexus.domain.model.out.AssetSearchResponse;
 import com.plexus.domain.model.out.AssetFileUploadResponse;
 
 @RestController
@@ -28,11 +31,11 @@ import com.plexus.domain.model.out.AssetFileUploadResponse;
 @Tag(name = "asset")
 public class AssetController {
 
-    private final AssetService assetService;
+    @Autowired
+    private AssetSearchService assetSearchService;
 
-    public AssetController(AssetService assetService) {
-        this.assetService = assetService;
-    }
+    @Autowired
+    private AssetUploadService assetUploadService;
 
     @PostMapping("/actions/upload")
     @Operation(
@@ -48,7 +51,7 @@ public class AssetController {
     )
     public ResponseEntity<AssetFileUploadResponse> upload(@RequestBody AssetFileUploadRequest request) {
         byte[] bytes = request.getEncodedFile() != null ? java.util.Base64.getDecoder().decode(request.getEncodedFile()) : new byte[0];
-        AssetConsultingResponse asset = assetService.upload(request.getFilename(), request.getContentType(), bytes);
+        AssetFileUploadResponse asset = assetUploadService.upload(request.getFilename(), request.getContentType(), bytes);
         return new ResponseEntity<>(new AssetFileUploadResponse(asset.getId()), HttpStatus.ACCEPTED);
     }
 
@@ -60,12 +63,12 @@ public class AssetController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Returns a list of assets matching the specified criteria.",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(type = "array", implementation = com.plexus.domain.model.out.AssetConsultingResponse.class))),
+                                    schema = @Schema(type = "array", implementation = com.plexus.domain.model.out.AssetSearchResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Malformed request."),
                     @ApiResponse(responseCode = "500", description = "An unexpected error occurred.")
             }
     )
-    public ResponseEntity<HashSet<AssetConsultingResponse>> search(
+    public ResponseEntity<HashSet<AssetSearchResponse>> search(
             @Parameter(description = "The start date for the range.") @RequestParam(required = false) String uploadDateStart, 
             @Parameter(description = "The end date for the range.") @RequestParam(required = false) String uploadDateEnd,
             @Parameter(description = "The filename expression for file filtering (regex).") @RequestParam(required = false) String filename,
@@ -73,11 +76,12 @@ public class AssetController {
             @Parameter(description = "Sort direction") @RequestParam(required = false) String sortDirection
     ) {
         //Serching assets by filters
-        List<AssetConsultingResponse> assets = assetService.search(uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
+        List<AssetSearchResponse> assets = assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
         //Returning assets as a set to avoid duplicates
-        HashSet<AssetConsultingResponse> response = new HashSet<>(assets);
+        HashSet<AssetSearchResponse> response = new HashSet<>(assets);
         return ResponseEntity.ok(response);
     }
+
 }
 
 

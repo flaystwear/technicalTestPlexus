@@ -8,6 +8,9 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password: 
+  sql:
+    init:
+      mode: always
   jpa:
     hibernate:
       ddl-auto: update
