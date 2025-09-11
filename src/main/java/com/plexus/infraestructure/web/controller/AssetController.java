@@ -1,21 +1,10 @@
 package com.plexus.infraestructure.web.controller;
 
 import java.util.HashSet;
-import java.util.List;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,10 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.plexus.application.ports.in.AssetSearchService;
 import com.plexus.application.ports.in.AssetUploadService;
+import com.plexus.domain.exception.InvalidSearchParametersException;
 import com.plexus.domain.model.in.AssetFileUploadRequest;
-import com.plexus.domain.model.out.AssetSearchResponse;
 import com.plexus.domain.model.out.AssetFileUploadResponse;
+import com.plexus.domain.model.out.AssetSearchResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/mgmt/1/assets")
 @Tag(name = "asset")
@@ -53,12 +54,39 @@ public class AssetController {
             }
     )
     public Mono<ResponseEntity<AssetFileUploadResponse>> upload(@RequestBody AssetFileUploadRequest request) {
-        //Decodificamos el archivo para guardar
-        byte[] bytes = request.getEncodedFile() != null ? java.util.Base64.getDecoder().decode(request.getEncodedFile()) : new byte[0];
-        //Llamada WebFlux por hilos
-        return Mono.fromCallable(() -> assetUploadService.upload(request.getFilename(), request.getContentType(), bytes))
+        log.info("Received upload request: {}", request);
+        log.info("Starting asset upload process for filename: {}, contentType: {}", request.getFilename(), request.getContentType());
+        
+        // Validate required fields
+        if (request.getFilename() == null || request.getFilename().isBlank()) {
+            log.warn("Upload request rejected: filename is required");
+            throw new IllegalArgumentException("Filename is required");
+        }
+        
+        if (request.getContentType() == null || request.getContentType().isBlank()) {
+            log.warn("Upload request rejected: contentType is required");
+            throw new IllegalArgumentException("ContentType is required");
+        }
+        
+        if (request.getEncodedFile() == null || request.getEncodedFile().isBlank()) {
+            log.warn("Upload request rejected: encodedFile is required");
+            throw new IllegalArgumentException("EncodedFile is required");
+        }
+        
+        // Decode the file for storage
+        byte[] bytes = java.util.Base64.getDecoder().decode(request.getEncodedFile());
+        log.debug("Decoded file size: {} bytes", bytes.length);
+        
+        // WebFlux call using threads
+        return Mono.fromCallable(() -> {
+                    log.info("Processing upload in background thread");
+                    return assetUploadService.upload(request.getFilename(), request.getContentType(), bytes);
+                })
                 .subscribeOn(Schedulers.boundedElastic())
-                .map(a -> new ResponseEntity<>(new AssetFileUploadResponse(a.getId()), HttpStatus.ACCEPTED));
+                .map(response -> {
+                    log.info("Upload completed successfully for asset ID: {}", response.getId());
+                    return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+                });
     }
 
     @GetMapping("/")
@@ -81,10 +109,35 @@ public class AssetController {
             @Parameter(description = "The file types for file filtering (one at a time).") @RequestParam(required = false) String filetype,
             @Parameter(description = "Sort direction") @RequestParam(required = false) String sortDirection
     ) {
-        //Serching assets by filters
-        return Mono.fromCallable(() -> assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, sortDirection))
+        log.info("Received search request - uploadDateStart: {}, uploadDateEnd: {}, filename: {}, filetype: {}, sortDirection: {}", 
+                uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
+        
+        boolean noFilters = (uploadDateStart == null || uploadDateStart.isBlank())
+                && (uploadDateEnd == null || uploadDateEnd.isBlank())
+                && (filename == null || filename.isBlank())
+                && (filetype == null || filetype.isBlank());
+        
+        if (noFilters) {
+            log.warn("Search request rejected: no filters provided");
+            throw new InvalidSearchParametersException();
+        }
+        
+        if (sortDirection == null || sortDirection.isBlank()) {
+            log.warn("Search request rejected: sortDirection is required");
+            throw new InvalidSearchParametersException();
+        }
+        
+        // Searching assets by filters
+        return Mono.fromCallable(() -> {
+                    log.info("Processing search in background thread");
+                    return assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
+                })
                 .subscribeOn(Schedulers.boundedElastic())
-                .map(list -> new HashSet<>(list))
+                .map(list -> {
+                    log.info("Search completed successfully. Found {} assets", list.size());
+                    log.debug("Search results: {}", list);
+                    return new HashSet<>(list);
+                })
                 .map(ResponseEntity::ok);
     }
 

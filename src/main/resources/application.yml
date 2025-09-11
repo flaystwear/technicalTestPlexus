@@ -18,6 +18,7 @@ spring:
       hibernate:
         format_sql: true
         jdbc.time_zone: UTC
+        show_sql: false
   h2:
     console:
       enabled: true
