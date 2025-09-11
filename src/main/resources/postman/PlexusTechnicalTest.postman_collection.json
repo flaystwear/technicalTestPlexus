@@ -1,0 +1,290 @@
+{
+	"info": {
+		"_postman_id": "5577f02e-1412-4817-a9c8-1c2e339405ca",
+		"name": "PlexusTechnicalTest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48251478",
+		"_collection_link": "https://juan-gonzalezpolo-931751.postman.co/workspace/JGP's-Workspace~04aad174-40f8-4562-8e44-544586ab5f72/collection/48251478-5577f02e-1412-4817-a9c8-1c2e339405ca?action=share&source=collection_link&creator=48251478"
+	},
+	"item": [
+		{
+			"name": "Upload file",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"filename\":\"img.png\",\r\n    \"encodedFile\":\"aGVsbG8=\",\r\n    \"contentType\":\"image/png\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/actions/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						"actions",
+						"upload"
+					]
+				},
+				"description": "Generated from cURL: curl -X POST \"http://localhost:8080/api/mgmt/1/assets/actions/upload\" ^\n  -H \"Content-Type: application/json\" ^\n  -d \"{\\\"filename\\\":\\\"img.png\\\",\\\"encodedFile\\\":\\\"aGVsbG8=\\\",\\\"contentType\\\":\\\"image/png\\\"}\""
+			},
+			"response": []
+		},
+		{
+			"name": "Search simple: fileTypee",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?filetype=text/csv&sortDirection=ASC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "filetype",
+							"value": "text/csv"
+						},
+						{
+							"key": "sortDirection",
+							"value": "ASC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/?filetype=text/csv&sortDirection=ASC\""
+			},
+			"response": []
+		},
+		{
+			"name": "Search by date",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&sortDirection=ASC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "uploadDateStart",
+							"value": "2025-01-10T00:00:00Z"
+						},
+						{
+							"key": "uploadDateEnd",
+							"value": "2025-01-12T23:59:59Z"
+						},
+						{
+							"key": "sortDirection",
+							"value": "ASC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-11T23:59:59Z&sortDirection=ASC\""
+			},
+			"response": []
+		},
+		{
+			"name": "Search by type and dates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&filetype=image/jpeg&sortDirection=ASC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "uploadDateStart",
+							"value": "2025-01-10T00:00:00Z"
+						},
+						{
+							"key": "uploadDateEnd",
+							"value": "2025-01-12T23:59:59Z"
+						},
+						{
+							"key": "filetype",
+							"value": "image/jpeg"
+						},
+						{
+							"key": "sortDirection",
+							"value": "ASC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&filetype=image/jpeg&sortDirection=ASC\""
+			},
+			"response": []
+		},
+		{
+			"name": "Search by name and dates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&filename=document.*&sortDirection=ASC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "uploadDateStart",
+							"value": "2025-01-10T00:00:00Z"
+						},
+						{
+							"key": "uploadDateEnd",
+							"value": "2025-01-12T23:59:59Z"
+						},
+						{
+							"key": "filename",
+							"value": "document.*"
+						},
+						{
+							"key": "sortDirection",
+							"value": "ASC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&filename=document.*&sortDirection=ASC\""
+			},
+			"response": []
+		},
+		{
+			"name": "Search by name and type",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?filename=document.*&filetype=text/csv&sortDirection=ASC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "document.*"
+						},
+						{
+							"key": "filetype",
+							"value": "text/csv"
+						},
+						{
+							"key": "sortDirection",
+							"value": "ASC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/?filename=document.*&filetype=text/csv&sortDirection=ASC\""
+			},
+			"response": []
+		},
+		{
+			"name": "SearchFull Search",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&filename=document.*&filetype=image/jpeg&sortDirection=DESC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "uploadDateStart",
+							"value": "2025-01-10T00:00:00Z"
+						},
+						{
+							"key": "uploadDateEnd",
+							"value": "2025-01-12T23:59:59Z"
+						},
+						{
+							"key": "filename",
+							"value": "document.*"
+						},
+						{
+							"key": "filetype",
+							"value": "image/jpeg"
+						},
+						{
+							"key": "sortDirection",
+							"value": "DESC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&filename=document.*&filetype=image/jpeg&sortDirection=DESC\""
+			},
+			"response": []
+		}
+	]
+}
