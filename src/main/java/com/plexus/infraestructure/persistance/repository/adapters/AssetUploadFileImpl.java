@@ -1,5 +1,7 @@
 package com.plexus.infraestructure.persistance.repository.adapters;
 
+import java.time.OffsetDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +11,10 @@ import com.plexus.domain.model.dto.Asset;
 import com.plexus.infraestructure.persistance.entity.AssetEntity;
 import com.plexus.infraestructure.persistance.mapping.AssetEntityMapper;
 import com.plexus.infraestructure.persistance.repository.AssetRepository;
-import com.plexus.infraestructure.storage.FakeAwsStorageClient;
 
-import java.time.OffsetDateTime;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class AssetUploadFileImpl implements AssetUploadPort{
     @Autowired
@@ -33,13 +35,20 @@ public class AssetUploadFileImpl implements AssetUploadPort{
         .uploadDate(OffsetDateTime.now())
         .build();
         AssetEntity saved = assetRepository.save(newAsset);
-        // Lanzamos la subida asíncrona y, cuando termine, actualizamos la URL en BD
+        
+        log.info("Asset created and saved to database: {}", saved);
+        
+        // Launch asynchronous upload and, when finished, update URL in DB
         storageClient.uploadAsync(saved.getId(), encodedFile)
                 .thenAccept(url -> {
                     saved.setUrl(url);
-                    assetRepository.save(saved);
+                    AssetEntity updatedAsset = assetRepository.save(saved);
+                    log.info("Asset updated with URL: {}", updatedAsset);
                 });
-        // Respondemos inmediatamente con los datos actuales; la URL se rellenará más tarde
-        return assetEntityMapper.mapAssetEntityToAsset(saved);
+        
+        // Respond immediately with current data; URL will be filled later
+        Asset result = assetEntityMapper.mapAssetEntityToAsset(saved);
+        log.info("Asset mapped to DTO: {}", result);
+        return result;
     }
 }

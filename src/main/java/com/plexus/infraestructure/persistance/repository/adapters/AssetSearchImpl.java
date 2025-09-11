@@ -1,72 +1,80 @@
 package com.plexus.infraestructure.persistance.repository.adapters;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.plexus.application.ports.out.AssetSearchPort;
 import com.plexus.domain.model.dto.Asset;
-import com.plexus.domain.model.out.AssetSearchResponse;
 import com.plexus.infraestructure.persistance.entity.AssetEntity;
+import com.plexus.infraestructure.persistance.mapping.AssetEntityMapper;
 import com.plexus.infraestructure.persistance.repository.AssetRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class AssetSearchImpl implements AssetSearchPort {
 
     @Autowired
     private AssetRepository assetRepository;
 
+    @Autowired
+    private AssetEntityMapper mapper;
 
-    // @Override
-    // public AssetSearchResponse save(AssetSearchResponse asset) {
-    //     AssetEntity entity = toEntity(asset);
-    //     AssetEntity saved = jpaRepository.save(entity);
-    //     return toDomain(saved);
-    // }
-
-    @Override
-    public Optional<Asset> findById(String id) {
-        Optional <AssetEntity> asset =assetRepository.findById(id);
-        return null;
-    }
 
     @Override
     public List<Asset> findByFilters(String filenameRegex, String filetype, OffsetDateTime uploadDateStart, OffsetDateTime uploadDateEnd, String sortDirection) {
-        // Por simplicidad, usamos findAll y filtramos en memoria. En producción, construir Specification.
-    //    List<AssetEntity> jpaRepository.findAll().stream()
-    //             .filter(e -> filenameRegex == null || e.getFilename().matches(filenameRegex))
-    //             .filter(e -> filetype == null || filetype.equalsIgnoreCase(e.getContentType()))
-    //             .filter(e -> uploadDateStart == null || (e.getUploadDate() != null && !e.getUploadDate().isBefore(uploadDateStart)))
-    //             .filter(e -> uploadDateEnd == null || (e.getUploadDate() != null && !e.getUploadDate().isAfter(uploadDateEnd)))
-    //             .map(this::toDomain)
-    //             .collect(Collectors.toList());
-        return null;
+        log.info("Starting database search with filters - filenameRegex: {}, filetype: {}, uploadDateStart: {}, uploadDateEnd: {}, sortDirection: {}", 
+                filenameRegex, filetype, uploadDateStart, uploadDateEnd, sortDirection);
+        
+        Specification<AssetEntity> spec = Specification.where(null);
+
+        if (filenameRegex != null && !filenameRegex.isBlank()) {
+            spec = spec.and((root, cq, cb) -> cb.like(root.get("filename"), filenameRegex.replace(".*", "%")));
+            log.debug("Added filename filter: {}", filenameRegex);
+        }
+        if (filetype != null && !filetype.isBlank()) {
+            spec = spec.and((root, cq, cb) -> cb.equal(root.get("contentType"), filetype));
+            log.debug("Added filetype filter: {}", filetype);
+        }
+        if (uploadDateStart != null) {
+            spec = spec.and((root, cq, cb) -> cb.greaterThanOrEqualTo(root.get("uploadDate"), uploadDateStart));
+            log.debug("Added uploadDateStart filter: {}", uploadDateStart);
+        }
+        if (uploadDateEnd != null) {
+            spec = spec.and((root, cq, cb) -> cb.lessThanOrEqualTo(root.get("uploadDate"), uploadDateEnd));
+            log.debug("Added uploadDateEnd filter: {}", uploadDateEnd);
+        }
+
+        var sort = Sort.by(
+                (sortDirection != null && sortDirection.equalsIgnoreCase("DESC")) ? Sort.Direction.DESC : Sort.Direction.ASC,
+                "id"
+        );
+        log.debug("Created sort specification: {}", sort);
+
+        List<AssetEntity> assets= assetRepository.findAll(spec, sort);
+        log.info("Retrieved {} entities from database", assets.size());
+        log.debug("Raw entities from database: {}", assets);
+        
+        List<Asset> response=new ArrayList<>();
+        if (!assets.isEmpty()){
+           response= assets.stream().map(asset->mapper.mapAssetEntityToAsset(asset)).collect(Collectors.toList());
+        }
+        
+        log.info("Mapped {} entities to DTOs", response.size());
+        log.debug("Final mapped DTOs: {}", response);
+        
+        return response;
     }
 
-    private AssetEntity toEntity(AssetSearchResponse asset) {
-        AssetEntity e = new AssetEntity();
-        e.setId(asset.getId());
-        e.setFilename(asset.getFilename());
-        e.setContentType(asset.getContentType());
-        e.setUrl(asset.getUrl());
-        e.setSize(asset.getSize());
-        e.setUploadDate(asset.getUploadDate() != null ? OffsetDateTime.parse(asset.getUploadDate()) : null);
-        return e;
-    }
-
-    private AssetSearchResponse toDomain(AssetEntity e) {
-        AssetSearchResponse a = new AssetSearchResponse();
-        a.setId(e.getId());
-        a.setFilename(e.getFilename());
-        a.setContentType(e.getContentType());
-        a.setUrl(e.getUrl());
-        a.setSize(e.getSize());
-        a.setUploadDate(e.getUploadDate().toString());
-        return a;
-    }
+    
 }
 
 

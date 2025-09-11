@@ -13,6 +13,7 @@ public class AssetEntityMapper {
             .contentType(entity.getContentType())
             .filename(entity.getFilename())
             .id(entity.getId())
+            .size(entity.getSize())
             .uploadDate(entity.getUploadDate().toString())
             .url(entity.getUrl())
             .build();
