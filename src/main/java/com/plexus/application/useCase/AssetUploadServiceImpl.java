@@ -18,7 +18,8 @@ public class AssetUploadServiceImpl implements AssetUploadService {
     public AssetFileUploadResponse upload(String filename, String contentType, byte[] encodedFile) {
         // Aquí podríamos almacenar el archivo y construir la URL; por ahora, simulamos
         Asset asset= assetUploadPort.upload(filename, contentType, encodedFile);
-        return null;
+
+        return new AssetFileUploadResponse(asset.getId());
     }
 
     

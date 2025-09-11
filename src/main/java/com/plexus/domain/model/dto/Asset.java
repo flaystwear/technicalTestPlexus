@@ -1,6 +1,5 @@
 package com.plexus.domain.model.dto;
 
-import java.time.OffsetDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +16,7 @@ public class Asset {
     private String contentType;
     private String url;
     private Long size;
-    private OffsetDateTime uploadDate;
+    private String uploadDate;
 }
 
 
