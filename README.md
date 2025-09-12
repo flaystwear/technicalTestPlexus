@@ -20,7 +20,7 @@ The design has the 3 main layers:application, infraestructure and domain
 
 - Application: The internals behavior of the application, definitions and interfaces
 - - config
-- - - Threads and async behavior
+- - - Threads, security and async behavior
 - - ports
 - - - These contains the in ports, the contract with the client, the deffinition of what will the app do
 - - - And also the out ports: he definition of what will we need from external services (suchs as aws or the database)
