@@ -16,6 +16,7 @@ import com.plexus.infraestructure.persistance.entity.AssetEntity;
 import com.plexus.infraestructure.persistance.mapping.AssetEntityMapper;
 import com.plexus.infraestructure.persistance.repository.AssetRepository;
 
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,6 +31,7 @@ public class AssetSearchImpl implements AssetSearchPort {
 
 
     @Override
+    @Retry(name = "database-operations")
     public List<Asset> findByFilters(String filenameRegex, String filetype, OffsetDateTime uploadDateStart, OffsetDateTime uploadDateEnd, String sortDirection) {
         log.info("Starting database search with filters - filenameRegex: {}, filetype: {}, uploadDateStart: {}, uploadDateEnd: {}, sortDirection: {}", 
                 filenameRegex, filetype, uploadDateStart, uploadDateEnd, sortDirection);
@@ -55,7 +57,7 @@ public class AssetSearchImpl implements AssetSearchPort {
 
         var sort = Sort.by(
                 (sortDirection != null && sortDirection.equalsIgnoreCase("DESC")) ? Sort.Direction.DESC : Sort.Direction.ASC,
-                "id"
+                "uploadDate"
         );
         log.debug("Created sort specification: {}", sort);
 

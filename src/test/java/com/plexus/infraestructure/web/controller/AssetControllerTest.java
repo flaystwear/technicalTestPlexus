@@ -1,5 +1,6 @@
 package com.plexus.infraestructure.web.controller;
 
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -12,17 +13,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import com.plexus.application.config.TestSecurityConfig;
 import com.plexus.application.ports.in.AssetSearchService;
 import com.plexus.application.ports.in.AssetUploadService;
 import com.plexus.domain.exception.InvalidSearchParametersException;
-import com.plexus.domain.model.out.AssetFileUploadResponse;
 import com.plexus.domain.model.in.AssetFileUploadRequest;
+import com.plexus.domain.model.out.AssetFileUploadResponse;
 import com.plexus.domain.model.out.AssetSearchResponse;
 
 @WebFluxTest(AssetController.class)
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class AssetControllerTest {
 
     @Autowired

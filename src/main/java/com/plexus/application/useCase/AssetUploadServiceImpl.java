@@ -30,8 +30,6 @@ public class AssetUploadServiceImpl implements AssetUploadService {
         
         return new AssetFileUploadResponse(asset.getId());
     }
-
-    
 }
 
 

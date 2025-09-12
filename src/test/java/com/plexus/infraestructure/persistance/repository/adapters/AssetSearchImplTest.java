@@ -2,7 +2,10 @@ package com.plexus.infraestructure.persistance.repository.adapters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.OffsetDateTime;
@@ -15,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -188,4 +192,20 @@ class AssetSearchImplTest {
         assertNotNull(result);
         assertEquals(2, result.size());
     }
+
+    @Test
+    void findByFilters_ShouldNotRetryOnNonDataAccessException() {
+        // Given - Simular una excepción que NO debería activar retry
+        when(assetRepository.findAll(any(Specification.class), any(Sort.class)))
+            .thenThrow(new RuntimeException("Invalid search parameters"));
+
+        // When & Then - No debería hacer retry para este tipo de error
+        assertThrows(RuntimeException.class, () -> {
+            assetSearchImpl.findByFilters("test", null, null, null, "ASC");
+        });
+        
+        // Verificar que solo se llamó 1 vez (no retry)
+        verify(assetRepository, times(1)).findAll(any(Specification.class), any(Sort.class));
+    }
+
 }
