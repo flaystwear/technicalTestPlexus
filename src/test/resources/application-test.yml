@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    active: test
-  
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
@@ -10,11 +7,12 @@ spring:
   
   h2:
     console:
-      enabled: false
+      enabled: true
+      path: /h2-console
   
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -30,3 +28,40 @@ logging:
     com.plexus: INFO
     org.springframework.web: WARN
     org.hibernate: WARN
+
+# Resilient4j Configuration for Tests 
+resilience4j:
+  ratelimiter:
+    instances:
+      search-endpoint:
+        limit-for-period: 20
+        limit-refresh-period: 1s
+        timeout-duration: 0s
+        allow-health-indicator-to-fail: true
+  retry:
+    instances:
+      database-operations:
+        max-attempts: 2
+        wait-duration: 500ms
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - java.sql.SQLException
+        ignore-exceptions:
+          - com.plexus.domain.exception.InvalidSearchParametersException
+
+# Security Configuration para tests - deshabilitada
+security:
+  basic:
+    enabled: false
+
+# Perfil específico para tests de controlador
+---
+spring:
+  config:
+    activate:
+      on-profile: controller-test
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration

@@ -19,6 +19,8 @@ spring:
         format_sql: true
         jdbc.time_zone: UTC
         show_sql: false
+        jdbc.lob.non_contextual_creation: true
+        connection.handling_mode: delayed_acquisition_and_release_after_transaction
   h2:
     console:
       enabled: true
@@ -38,5 +40,39 @@ logging:
   level:
     root: INFO
     com.plexus: INFO
+
+# Resilient4j Configuration
+resilience4j:
+  ratelimiter:
+    instances:
+      search-endpoint:
+        limit-for-period: 10
+        limit-refresh-period: 1s
+        timeout-duration: 0s
+        allow-health-indicator-to-fail: true
+  retry:
+    instances:
+      database-operations:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - java.sql.SQLException
+        ignore-exceptions:
+          - com.plexus.domain.exception.InvalidSearchParametersException
+
+# Security Configuration
+security:
+  basic:
+    enabled: true
+    realm: "Plexus Asset Management API"
+  users:
+    admin:
+      password: admin123
+      roles: ADMIN
+    user:
+      password: user123
+      roles: USER
 
 

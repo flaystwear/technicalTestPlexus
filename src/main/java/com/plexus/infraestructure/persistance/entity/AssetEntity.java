@@ -37,7 +37,7 @@ public class AssetEntity {
     @Column
     private Long size;
 
-    @Column
+    @Column(columnDefinition = "TIMESTAMP")
     private OffsetDateTime uploadDate;
 
    

@@ -1,6 +1,6 @@
 package com.plexus.infraestructure.web.controller;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +19,7 @@ import com.plexus.domain.model.in.AssetFileUploadRequest;
 import com.plexus.domain.model.out.AssetFileUploadResponse;
 import com.plexus.domain.model.out.AssetSearchResponse;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,7 +51,8 @@ public class AssetController {
                     @ApiResponse(responseCode = "202", description = "The operation was accepted by the backend.",
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = com.plexus.domain.model.out.AssetFileUploadResponse.class))),
-                    @ApiResponse(responseCode = "500", description = "An unexpected error occurred.")
+                    @ApiResponse(responseCode = "400", description = "Malformed request.", content = @Content()),
+                    @ApiResponse(responseCode = "500", description = "An unexpected error occurred.", content = @Content())
             }
     )
     public Mono<ResponseEntity<AssetFileUploadResponse>> upload(@RequestBody AssetFileUploadRequest request) {
@@ -90,6 +92,7 @@ public class AssetController {
     }
 
     @GetMapping("/")
+    @RateLimiter(name = "search-endpoint")
     @Operation(
             summary = "Allows searching (& filtering) all the uploaded/registered assets.",
             description = "Allows searching all the uploaded/registered assets by using all the given filters.",
@@ -98,11 +101,11 @@ public class AssetController {
                     @ApiResponse(responseCode = "200", description = "Returns a list of assets matching the specified criteria.",
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(type = "array", implementation = com.plexus.domain.model.out.AssetSearchResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Malformed request."),
-                    @ApiResponse(responseCode = "500", description = "An unexpected error occurred.")
+                    @ApiResponse(responseCode = "400", description = "Malformed request.", content = @Content()),
+                    @ApiResponse(responseCode = "500", description = "An unexpected error occurred.", content = @Content())
             }
     )
-    public Mono<ResponseEntity<HashSet<AssetSearchResponse>>> search(
+    public Mono<ResponseEntity<LinkedHashSet<AssetSearchResponse>>> search(
             @Parameter(description = "The start date for the range.") @RequestParam(required = false) String uploadDateStart, 
             @Parameter(description = "The end date for the range.") @RequestParam(required = false) String uploadDateEnd,
             @Parameter(description = "The filename expression for file filtering (regex).") @RequestParam(required = false) String filename,
@@ -136,7 +139,7 @@ public class AssetController {
                 .map(list -> {
                     log.info("Search completed successfully. Found {} assets", list.size());
                     log.debug("Search results: {}", list);
-                    return new HashSet<>(list);
+                    return new LinkedHashSet<>(list);
                 })
                 .map(ResponseEntity::ok);
     }
