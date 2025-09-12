@@ -13,7 +13,7 @@
 
     <groupId>com.plexus</groupId>
     <artifactId>technicalTestPlexus</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>technicalTestPlexus</name>
     <description>Aplicación Spring Boot (Java 21) para la prueba técnica plexus</description>
     <packaging>jar</packaging>
