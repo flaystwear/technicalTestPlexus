@@ -10,6 +10,21 @@
 		{
 			"name": "Upload file",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [
 					{
@@ -47,8 +62,126 @@
 			"response": []
 		},
 		{
+			"name": "Upload file Bad Request",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"filename\":\"img.png\",\r\n    \"encodedFile\":\"aGVsbG8=\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/actions/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						"actions",
+						"upload"
+					]
+				},
+				"description": "Generated from cURL: curl -X POST \"http://localhost:8080/api/mgmt/1/assets/actions/upload\" ^\n  -H \"Content-Type: application/json\" ^\n  -d \"{\\\"filename\\\":\\\"img.png\\\",\\\"encodedFile\\\":\\\"aGVsbG8=\\\",\\\"contentType\\\":\\\"image/png\\\"}\""
+			},
+			"response": []
+		},
+		{
+			"name": "Search simple: filename",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?filename=document2.jpg&sortDirection=ASC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "document2.jpg"
+						},
+						{
+							"key": "sortDirection",
+							"value": "ASC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/\""
+			},
+			"response": []
+		},
+		{
 			"name": "Search simple: fileTypee",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -81,12 +214,76 @@
 			"response": []
 		},
 		{
-			"name": "Search by date",
+			"name": "Search simple: fileTypee image",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&sortDirection=ASC",
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?filetype=image/jpeg&sortDirection=ASC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "filetype",
+							"value": "image/jpeg"
+						},
+						{
+							"key": "sortDirection",
+							"value": "ASC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/?filetype=text/csv&sortDirection=ASC\""
+			},
+			"response": []
+		},
+		{
+			"name": "Search by date",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-18T23:59:59Z&sortDirection=ASC",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -106,7 +303,7 @@
 						},
 						{
 							"key": "uploadDateEnd",
-							"value": "2025-01-12T23:59:59Z"
+							"value": "2025-01-18T23:59:59Z"
 						},
 						{
 							"key": "sortDirection",
@@ -121,6 +318,21 @@
 		{
 			"name": "Search by type and dates",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -163,6 +375,21 @@
 		{
 			"name": "Search by name and dates",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -205,6 +432,21 @@
 		{
 			"name": "Search by name and type",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -243,6 +485,21 @@
 		{
 			"name": "SearchFull Search",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -271,6 +528,67 @@
 						{
 							"key": "filename",
 							"value": "document.*"
+						},
+						{
+							"key": "filetype",
+							"value": "image/jpeg"
+						},
+						{
+							"key": "sortDirection",
+							"value": "DESC"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl \"http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&filename=document.*&filetype=image/jpeg&sortDirection=DESC\""
+			},
+			"response": []
+		},
+		{
+			"name": "Search EMPTY",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "USER",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "user123",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/mgmt/1/assets/?uploadDateStart=2025-01-10T00:00:00Z&uploadDateEnd=2025-01-12T23:59:59Z&filename=document6&filetype=image/jpeg&sortDirection=DESC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mgmt",
+						"1",
+						"assets",
+						""
+					],
+					"query": [
+						{
+							"key": "uploadDateStart",
+							"value": "2025-01-10T00:00:00Z"
+						},
+						{
+							"key": "uploadDateEnd",
+							"value": "2025-01-12T23:59:59Z"
+						},
+						{
+							"key": "filename",
+							"value": "document6"
 						},
 						{
 							"key": "filetype",

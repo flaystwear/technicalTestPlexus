@@ -15,10 +15,12 @@ As specified, the POST endpoint persists metadata in a database so that uploaded
 
 ## Hexagonal design
 The design has the 3 main layers:application, infraestructure and domain
+
 ![h2_database.PNG](src/main/resources/images/hexagonal1.png)
+
 - Application: The internals behavior of the application, definitions and interfaces
 - - config
-- - - Threads and async behavior
+- - - Threads, security and async behavior
 - - ports
 - - - These contains the in ports, the contract with the client, the deffinition of what will the app do
 - - - And also the out ports: he definition of what will we need from external services (suchs as aws or the database)
@@ -82,17 +84,80 @@ so it's not properly implemented, just mocked.
 
 
 ##TESTS
-The proyect includes a batery of unitary and integration test, with a total 
-coverage of 93%. It was generated using JaCoCo, although SonarQube or simmilars are 
+The proyect includes a batery of tests:
+- unitary 
+- integration (test\java\com\plexus\infraestructure\integration\IntegrationTest.java)
+
+With a total coverage of 97%. 
+The testing report was generated using JaCoCo, although SonarQube or simmilars are 
 recommended.
 ![openApi.png](src/main/resources/images/jacocoReport.png)
 
+## Resilience Patterns
+
+This application implements resilience patterns using **Resilient4j** to improve fault tolerance and system stability. The following patterns have been implemented:
+
+### Implemented Patterns
+
+#### 1. Rate Limiter
+- **Configuration**: 10 requests per second limit
+- **Purpose**: Prevents API abuse and protects the search endpoint from being overwhelmed
+
+
+#### 2. Retry Pattern
+
+- **Configuration**: 
+  - Maximum 3 retry attempts
+  - 1 second wait time between retries
+  - Exponential backoff multiplier of 2
+- **Purpose**: Handles transient database failures by automatically retrying failed operations
+
+### Patterns Not Implemented
+
+The following resilience patterns were considered but not implemented due to compatibility issues or complexity:
+
+#### 1. Circuit Breaker
+- **Reason**: Caused conflicts with the application's normal operation
+- **Use Case**: Would prevent cascading failures when external services are down
+
+#### 2. Time Limiter
+- **Reason**: Incompatible with `List` return type (requires `CompletionStage`)
+- **Use Case**: Would cancel long-running database queries that exceed timeout limits
+
+## Security
+
+This application implements **Spring Security** with **WebFlux** to protect the API endpoints. The security configuration provides authentication and authorization for the asset management system.
+
+### Security Configuration
+
+#### Authentication Method
+- **Basic Authentication**: Simple username/password authentication
+- **Users**: Two predefined users with different roles (for this test there isn't any difference between one and the other)
+  - `admin` / `admin123` (ADMIN role)
+  - `user` / `user123` (USER role)
+
+#### Protected Endpoints
+- **API Endpoints**: All `/api/**` endpoints require authentication
+- **Public Endpoints**: No authentication required
+  - Swagger UI (`/swagger-ui/**`)
+  - OpenAPI documentation (`/v3/api-docs/**`)
+  - Health check (`/actuator/health`)
+
+
+
 
 ### Construir
+
+
 JaCoCo: target/site/index.html
 ```bash
 mvn -v
 mvn clean verify
+```
+
+```bash
+mvn -v
+mvn install
 ```
 
 ### Execute (develop)

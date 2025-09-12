@@ -12,6 +12,7 @@ import com.plexus.infraestructure.persistance.entity.AssetEntity;
 import com.plexus.infraestructure.persistance.mapping.AssetEntityMapper;
 import com.plexus.infraestructure.persistance.repository.AssetRepository;
 
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -32,7 +33,7 @@ public class AssetUploadFileImpl implements AssetUploadPort{
         .filename(filename)
         .size(size)
         .url(null)
-        .uploadDate(OffsetDateTime.now())
+        .uploadDate(OffsetDateTime.now().withNano(0))
         .build();
         AssetEntity saved = assetRepository.save(newAsset);
         
