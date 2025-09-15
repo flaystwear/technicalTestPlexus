@@ -125,15 +125,12 @@ public class AssetController {
             throw new InvalidSearchParametersException();
         }
         
-        if (sortDirection == null || sortDirection.isBlank()) {
-            log.warn("Search request rejected: sortDirection is required");
-            throw new InvalidSearchParametersException();
-        }
+        final String finalSortDirection = (sortDirection == null || sortDirection.isBlank()) ? "DESC" : sortDirection;
         
         // Searching assets by filters
         return Mono.fromCallable(() -> {
                     log.info("Processing search in background thread");
-                    return assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
+                    return assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, finalSortDirection);
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(list -> {
