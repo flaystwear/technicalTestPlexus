@@ -66,7 +66,7 @@ The database was initialized with some registers to facilitate testing
 
 ## REST Endpoints
 This application provides the 2 specified endpoints as requested in openapi.yml
-You can also check the SwaggerUI by accessing http://localhost:8080/swagger-ui/index.html while the code is running;
+You can also check the SwaggerUI by accessing http://localhost:8080/webjars/swagger-ui/index.html while the code is running;
 
 ![openApi.png](src/main/resources/images/openApiDef.png)
 
@@ -202,8 +202,27 @@ docker-compose down
 ![Console log](src/main/resources/images/Docker.png)
 ![DockerDesktop](src/main/resources/images/DockerExecution.png)
 
+## OpenAPI Code Generation
 
+This project includes OpenAPI Code Generation capabilities (currently commented out in `pom.xml` for reference). The OpenAPI Generator plugin can automatically generate Spring Boot controller interfaces and model classes from the `openapi.yml` specification file.
 
+This is in order to achieve an API First approach.
+
+### What it generates:
+- **AssetApi interface**: A Spring Boot controller interface (`com.plexus.generated.api.AssetApi`) that defines the contract for the REST endpoints
+- **Model classes**: DTOs and request/response models in the `com.plexus.generated.model` package
+
+### Implementation approach:
+1. The generated `AssetApi` interface serves as the contract definition
+2. A concrete controller (`AssetApiController`) implements this interface
+3. This approach provides a clean separation between API contract definition and implementation, ensuring that the REST API always matches the OpenAPI specification, and it maintains the hexagonal architecture.
+
+### To enable OpenAPI Code Generation:
+1. Uncomment the dependencies and plugins in `pom.xml`:`
+2. Run `mvn clean compile` to generate the interfaces and models
+3. Implement the generated `AssetApi` interface in a new controller class
+
+n.
 
 ## To be covered during the interview
 #### Which improvements would you do to the API definition?
