@@ -190,7 +190,7 @@ public class IntegrationTest {
     @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
     @Transactional
     @Rollback(false)
-    void testSearch_ShouldReturnBadRequest_WhenInvalidRequest() {
+    void testSearch_ShouldReturnOk_WhenNoSortDirection() {
         // Given - Search for assets uploaded between day 10 and 12
         String uploadDateStart = "2025-01-10T00:00:00Z";
         String uploadDateEnd = "2025-01-14T23:59:59Z";
@@ -206,6 +206,6 @@ public class IntegrationTest {
                 searchUrl, String.class);
 
         // Then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

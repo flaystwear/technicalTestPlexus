@@ -5,8 +5,6 @@ import java.util.LinkedHashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,12 +17,7 @@ import com.plexus.domain.model.in.AssetFileUploadRequest;
 import com.plexus.domain.model.out.AssetFileUploadResponse;
 import com.plexus.domain.model.out.AssetSearchResponse;
 
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -34,7 +27,7 @@ import reactor.core.scheduler.Schedulers;
 @RestController
 @RequestMapping("/api/mgmt/1/assets")
 @Tag(name = "asset")
-public class AssetController {
+public class AssetController implements AssetApi {
 
     @Autowired
     private AssetSearchService assetSearchService;
@@ -42,19 +35,7 @@ public class AssetController {
     @Autowired
     private AssetUploadService assetUploadService;
 
-    @PostMapping("/actions/upload")
-    @Operation(
-            summary = "Performs an upload of the requested asset file.",
-            description = "Performs an upload of the requested asset file. It communicates with the asset service to upload the file, but it ends without waiting for the file to be uploaded.",
-            operationId = "uploadAssetFile",
-            responses = {
-                    @ApiResponse(responseCode = "202", description = "The operation was accepted by the backend.",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = com.plexus.domain.model.out.AssetFileUploadResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Malformed request.", content = @Content()),
-                    @ApiResponse(responseCode = "500", description = "An unexpected error occurred.", content = @Content())
-            }
-    )
+   @Override
     public Mono<ResponseEntity<AssetFileUploadResponse>> upload(@RequestBody AssetFileUploadRequest request) {
         log.info("Received upload request: {}", request);
         log.info("Starting asset upload process for filename: {}, contentType: {}", request.getFilename(), request.getContentType());
@@ -91,20 +72,7 @@ public class AssetController {
                 });
     }
 
-    @GetMapping("/")
-    @RateLimiter(name = "search-endpoint")
-    @Operation(
-            summary = "Allows searching (& filtering) all the uploaded/registered assets.",
-            description = "Allows searching all the uploaded/registered assets by using all the given filters.",
-            operationId = "getAssetsByFilter",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Returns a list of assets matching the specified criteria.",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(type = "array", implementation = com.plexus.domain.model.out.AssetSearchResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Malformed request.", content = @Content()),
-                    @ApiResponse(responseCode = "500", description = "An unexpected error occurred.", content = @Content())
-            }
-    )
+   @Override
     public Mono<ResponseEntity<LinkedHashSet<AssetSearchResponse>>> search(
             @Parameter(description = "The start date for the range.") @RequestParam(required = false) String uploadDateStart, 
             @Parameter(description = "The end date for the range.") @RequestParam(required = false) String uploadDateEnd,
@@ -125,15 +93,12 @@ public class AssetController {
             throw new InvalidSearchParametersException();
         }
         
-        if (sortDirection == null || sortDirection.isBlank()) {
-            log.warn("Search request rejected: sortDirection is required");
-            throw new InvalidSearchParametersException();
-        }
+        final String finalSortDirection = (sortDirection == null || sortDirection.isBlank()) ? "DESC" : sortDirection;
         
         // Searching assets by filters
         return Mono.fromCallable(() -> {
                     log.info("Processing search in background thread");
-                    return assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, sortDirection);
+                    return assetSearchService.search(uploadDateStart, uploadDateEnd, filename, filetype, finalSortDirection);
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(list -> {

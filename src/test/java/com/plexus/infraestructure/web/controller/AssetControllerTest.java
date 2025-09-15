@@ -163,13 +163,16 @@ class AssetControllerTest {
     }
 
     @Test
-    void search_ShouldReturnBadRequest_WhenSortDirectionMissing() throws Exception {
+    void search_ShouldReturnOk_WhenSortDirectionMissing() throws Exception {
         // When & Then
         webTestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/api/mgmt/1/assets/")
                         .queryParam("uploadDateStart", "2025-01-01T00:00:00Z")
                         .build())
                 .exchange()
-                .expectStatus().isBadRequest();
+                .expectStatus().isOk()
+                 .expectHeader()
+                 .contentType(MediaType.APPLICATION_JSON)
+                .expectBody();
     }
 }
